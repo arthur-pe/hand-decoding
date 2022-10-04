@@ -132,11 +132,6 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
             train_movement_hat, decoder = decoding_function(train_data, train_movement)
             test_movement_hat = decoder(test_data, test_movement[0])
 
-            """from matplotlib import pyplot as plt
-            plt.plot(test_movement[...,0], test_movement[...,1], color='red', alpha=0.3)
-            plt.plot(test_movement_hat[...,0], test_movement_hat[...,1], color='black', alpha=0.3)
-            plt.show()"""
-
             current_r2 = trial_wise_r2(test_movement, test_movement_hat)
 
             r2 += [current_r2]
