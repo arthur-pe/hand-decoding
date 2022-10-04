@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import matplotlib
 import numpy as np
-from functions import *
+from .functions import *
 
 """
 Throughout:
