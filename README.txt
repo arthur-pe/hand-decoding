@@ -1,4 +1,4 @@
-# Hand Decoding from Neural Data
-
+Hand Decoding from Neural Data
+______________________________
 
 
