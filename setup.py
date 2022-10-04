@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='HandDecoding',
+    name='hand-decoding',
     url='https://github.com/arthur-pe/hand-decoding.git',
     author='arthur',
     #author_email='',
