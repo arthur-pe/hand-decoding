@@ -1,1 +1,3 @@
-__all__ = ['functions', 'plotting']
+from functions import *
+from plotting import *
+#__all__ = ['functions', 'plotting']

@@ -3,4 +3,4 @@ ______________________________
 
 To install:
 
-pip install git+https://github.com/arthur-pe/hand-decoding.git#egg=hand-decoding
+pip install git+https://github.com/arthur-pe/hand-decoding.git#egg=hand_decoding
