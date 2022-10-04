@@ -11,10 +11,9 @@ def flatten_mid_dims(x):
     """
 
     x_shape = x.shape
-    data_trial_time_neuron = x.reshape(x_shape[0], -1, x_shape[-1]).transpose(1,0,2)
-    data_trial_time_neuron_shape = list(data_trial_time_neuron.shape)
+    data_flatten = x.reshape(x_shape[0], -1, x_shape[-1])
 
-    return x_shape, data_trial_time_neuron, data_trial_time_neuron_shape
+    return data_flatten
 
 def split(x, n, dn):
     """
@@ -27,7 +26,7 @@ def split(x, n, dn):
         test_x (ndarray): dn x time x neuron
     """
 
-    test_x = x[n:n + dn]
-    train_x = np.concatenate([x[:n], x[n + dn:]], axis=0)
+    test_x = x[:, n:n + dn]
+    train_x = np.concatenate([x[:, :n], x[:, n + dn:]], axis=1)
 
     return train_x, test_x

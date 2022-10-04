@@ -31,6 +31,16 @@ def decoding(x, y):
 
     return W, b
 
+def angles_from_vectors(x):
+    """
+    in:
+        x (ndarray): ... x XY
+    out:
+        angle (ndarray): ... angle in 0 to 2*np.pi
+    """
+
+    return np.arctan2(x[...,1], x[...,0])+np.pi
+
 def velocity_decoding(data, movement):
     """
     Linearly decodes (with bias) the velocity from the data and integrates it from true starting point
@@ -46,17 +56,17 @@ def velocity_decoding(data, movement):
 
     W, b = decoding(data_cut, velocity)
 
-    def decoder(x):
+    def decoder(x, initial_pos):
 
         velocity_hat = x[:-1] @ W.T + b
 
         position_zero_centered = np.cumsum(velocity_hat, axis=0)
-        position_no_init = position_zero_centered + movement[0][np.newaxis]
-        position = np.concatenate([movement[0][np.newaxis], position_no_init], axis=0)
+        position_no_init = position_zero_centered + initial_pos[np.newaxis]
+        position = np.concatenate([initial_pos[np.newaxis], position_no_init], axis=0)
 
         return position
 
-    return decoder(data), decoder
+    return decoder(data, movement[0]), decoder
 
 
 def position_decoding(data, movement):
@@ -71,27 +81,27 @@ def position_decoding(data, movement):
 
     W, b = decoding(data, movement)
 
-    def decoder(x): return x @ W.T + b
+    def decoder(x, initial_pos): return x @ W.T + b
 
-    return decoder(data), decoder
+    return decoder(data, None), decoder
 
 def trial_wise_r2(y, y_hat):
     """
     Returns trial-wise R^2
     in:
-        y (ndarray): trial x time x neuron
-        y_hat (ndarray): trial x time x neuron
+        y (ndarray): time x trial x neuron
+        y_hat (ndarray): time x trial x neuron
     out:
         r2 (float): R^2
     """
-    trial_r2 = 1 - np.sum((y - y_hat) ** 2, axis=(1, 2)) / np.sum((y - y.mean(axis=1)[:, np.newaxis]) ** 2,
-                                                                  axis=(1, 2))
+    trial_r2 = 1 - np.sum((y - y_hat) ** 2, axis=(0, 2)) / np.sum((y - y.mean(axis=0)[np.newaxis]) ** 2,
+                                                                  axis=(0, 2))
     r2 = trial_r2.mean(axis=0)
     return r2
 
 def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample_size=1):
     """
-    Performs k-fold linear decoding of the data
+    Performs k-fold crossvalidated linear decoding of the data and returns test R^2
     in:
         data, movement
         decoding function (python function): a function which takes data and movement as an argument and returns a decoder
@@ -101,19 +111,18 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
         r2_mean (float): mean R^2 over trials, folds, permutations (see trial_wise_r2)
         r2_std (float): same but std
     """
-    #decoded test movement on all folds?
 
-    data_shape, data_trial_time_neuron, data_trial_time_neuron_shape = flatten_mid_dims(data)
-    nb_trial, nb_time, nb_neuron = data_trial_time_neuron_shape
+    flattened_data = flatten_mid_dims(data)
+    nb_time, nb_trial, nb_neuron = flattened_data.shape
 
-    movement_shape, movement_trial_time_x, movement_trial_time_x_shape = flatten_mid_dims(movement)
+    flattened_movement = flatten_mid_dims(movement)
 
     size_of_folds_samples = round((nb_trial-nb_trial % folds)/folds)
 
     all_r2 = []
     for sample in range(sample_size):
         permutation = np.random.permutation(nb_trial)
-        permuted_data, permuted_movement = data_trial_time_neuron[permutation], movement_trial_time_x[permutation]
+        permuted_data, permuted_movement = flattened_data[:,permutation], flattened_movement[:,permutation]
         n = 0
         r2 = []
         for fold in range(folds):
@@ -121,8 +130,12 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
             train_movement, test_movement = split(permuted_movement, n, size_of_folds_samples)
 
             train_movement_hat, decoder = decoding_function(train_data, train_movement)
+            test_movement_hat = decoder(test_data, test_movement[0])
 
-            test_movement_hat = decoder(test_data)
+            """from matplotlib import pyplot as plt
+            plt.plot(test_movement[...,0], test_movement[...,1], color='red', alpha=0.3)
+            plt.plot(test_movement_hat[...,0], test_movement_hat[...,1], color='black', alpha=0.3)
+            plt.show()"""
 
             current_r2 = trial_wise_r2(test_movement, test_movement_hat)
 
