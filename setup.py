@@ -5,7 +5,7 @@ setup(
     url='https://github.com/arthur-pe/hand-decoding.git',
     author='arthur',
     #author_email='',
-    packages=['hand-decoding'],
+    packages=['hand_decoding'],
     install_requires=['numpy', 'matplotlib'],
     version='0.1',
     #license='MIT',
