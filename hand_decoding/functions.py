@@ -99,7 +99,7 @@ def trial_wise_r2(y, y_hat):
     r2 = trial_r2.mean(axis=0)
     return r2
 
-def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample_size=1):
+def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample_size=1, plot=False):
     """
     Performs k-fold crossvalidated linear decoding of the data and returns test R^2
     in:
@@ -132,6 +132,15 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
             train_movement_hat, decoder = decoding_function(train_data, train_movement)
             test_movement_hat = decoder(test_data, test_movement[0])
 
+            if plot:
+                import matplotlib.pyplot as plt
+                plt.plot(train_movement_hat[...,0], train_movement_hat[...,1], color='grey', alpha=0.5)
+                plt.plot(train_movement[..., 0], train_movement[..., 1], linestyle='--', color='black')
+                plt.plot(test_movement_hat[..., 0], test_movement_hat[..., 1], color='red')
+                plt.plot(test_movement[..., 0], test_movement[..., 1], linestyle='--', color='red')
+
+                plt.show()
+
             current_r2 = trial_wise_r2(test_movement, test_movement_hat)
 
             r2 += [current_r2]
@@ -143,6 +152,21 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
     all_r2 = np.array(all_r2)
 
     return all_r2.mean(), all_r2.std()
+
+def condition_average(data, movement, angle):
+    """
+    in:
+        data, movement
+        angle (ndarray): trial a float condition
+    out:
+        condition_avg_data (ndarray)
+        condition_avg_movement (ndarray)
+    """
+    unique_angles = np.unique(angle)
+    condition_avg_data = np.stack([np.mean(data[:, angle==a], axis=1) for a in unique_angles], axis=1)
+    condition_avg_movement = np.stack([np.mean(movement[:, angle==a], axis=1) for a in unique_angles], axis=1)
+
+    return condition_avg_data, condition_avg_movement
 
 
 if __name__=='__main__':

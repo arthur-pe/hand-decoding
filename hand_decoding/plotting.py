@@ -8,7 +8,7 @@ Throughout:
 ax (matplotlib ax): an axis on which to plot
 """
 
-def plot_hand_movement(ax, movement, angle, linestyle='-', alpha=1.0, linewidth=1.0):
+def plot_hand_movement(ax, movement, angle, linestyle='-', alpha=1.0, linewidth=1.0, set_ax_lim=True):
     """
     Plots hand movement with trajectories colored as angle
     in:
@@ -25,8 +25,9 @@ def plot_hand_movement(ax, movement, angle, linestyle='-', alpha=1.0, linewidth=
 
     max_movement = np.abs(movement).max()
 
-    ax.set_xlim(-max_movement*1.05, max_movement*1.05)
-    ax.set_ylim(-max_movement*1.05, max_movement*1.05)
+    if set_ax_lim:
+        ax.set_xlim(-max_movement*1.05, max_movement*1.05)
+        ax.set_ylim(-max_movement*1.05, max_movement*1.05)
 
     ax.set_aspect('equal')
 
@@ -42,6 +43,8 @@ def plot_multiple_hand_movements(axs, movements, angles, linestyle='-', alpha=1.
     max_y = np.max(np.array([np.abs(m[...,1]).max() for m in movements]))
 
     max_movement = max((max_x, max_y))
+
+    print(max_movement)
 
     for i in range(len(movements)):
         plot_hand_movement(axs[i], movements[i], angles[i],
