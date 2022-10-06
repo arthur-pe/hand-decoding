@@ -44,8 +44,6 @@ def plot_multiple_hand_movements(axs, movements, angles, linestyle='-', alpha=1.
 
     max_movement = max((max_x, max_y))
 
-    print(max_movement)
-
     for i in range(len(movements)):
         plot_hand_movement(axs[i], movements[i], angles[i],
                 linestyle=linestyle, alpha=alpha, linewidth=linewidth)
