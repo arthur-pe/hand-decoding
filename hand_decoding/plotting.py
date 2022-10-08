@@ -1,9 +1,10 @@
 from matplotlib import pyplot as plt
 import matplotlib
 import numpy as np
-from functions import *
-from analysis_functions import *
 import matplotlib.patches as mpatches
+
+from .functions import *
+from .analysis_functions import *
 
 """
 Throughout:

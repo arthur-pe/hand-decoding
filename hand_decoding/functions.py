@@ -1,5 +1,5 @@
 import numpy as np
-from helper_functions import *
+from .helper_functions import *
 
 """
 Throughout:

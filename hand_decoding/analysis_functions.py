@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn import discriminant_analysis as da
-from functions import *
+from .functions import *
 
 def lda_pos(initial_state, condition, target_position):
     """
