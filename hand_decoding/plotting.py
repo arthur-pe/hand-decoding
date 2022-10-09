@@ -137,7 +137,7 @@ def plot_correlation_matrix(ax, fig, correlation_matrix, vmax=None):
 
     im = ax.imshow(correlation_matrix, cmap='gnuplot2', vmin=-vmax, vmax=vmax, origin='upper', aspect='equal')
 
-    fig.colorbar(im, shrink=.6, label='Correlation', ticks=[-vmax, 0, vmax])
+    fig.colorbar(im, ax=ax, shrink=.6, label='Correlation', ticks=[-vmax, 0, vmax])
 
 if __name__=='__main__':
     fig = plt.figure(figsize=(5, 5))
