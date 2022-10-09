@@ -124,7 +124,7 @@ def plot_bar_per_condition(ax, value, error=None, label_model=None, label_condit
     if label_model is not None:
         ax.set_xticks(np.arange(0, (number_models)*(number_conditions+1),number_conditions+1)+number_conditions/2-0.5, label_model)
 
-def plot_correlation_matrix(ax, fig, correlation_matrix, cuts=None, vmax=None):
+def plot_correlation_matrix(ax, fig, correlation_matrix, vmax=None):
     """
     Plots a correlation matrix.
     in:
@@ -136,9 +136,6 @@ def plot_correlation_matrix(ax, fig, correlation_matrix, cuts=None, vmax=None):
         vmax = np.percentile(np.abs(correlation_matrix), 80)
 
     im = ax.imshow(correlation_matrix, cmap='gnuplot2', vmin=-vmax, vmax=vmax, origin='upper', aspect='equal')
-    if cuts is not None:
-        ax.set_xticks(cuts)
-        ax.set_yticks(cuts)
 
     fig.colorbar(im, shrink=.6, label='Correlation', ticks=[-vmax, 0, vmax])
 
