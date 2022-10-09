@@ -124,7 +124,7 @@ def plot_bar_per_condition(ax, value, error=None, label_model=None, label_condit
     if label_model is not None:
         ax.set_xticks(np.arange(0, (number_models)*(number_conditions+1),number_conditions+1)+number_conditions/2-0.5, label_model)
 
-def plot_correlation_matrix(ax, fig, correlation_matrix, vmax=None):
+def plot_correlation_matrix(ax, fig, correlation_matrix, vmin=None, vmax=None):
     """
     Plots a correlation matrix.
     in:
@@ -132,12 +132,14 @@ def plot_correlation_matrix(ax, fig, correlation_matrix, vmax=None):
         correlation_matrix: a correlation matrix
     """
 
+    if vmin is None:
+        vmin = np.percentile(np.abs(correlation_matrix), 10)
     if vmax is None:
-        vmax = np.percentile(np.abs(correlation_matrix), 80)
+        vmax = np.percentile(np.abs(correlation_matrix), 90)
 
-    im = ax.imshow(correlation_matrix, cmap='gnuplot2', vmin=-vmax, vmax=vmax, origin='upper', aspect='equal')
+    im = ax.imshow(correlation_matrix, cmap='gnuplot2', vmin=vmin, vmax=vmax, origin='upper', aspect='equal')
 
-    fig.colorbar(im, ax=ax, shrink=.6, label='Correlation', ticks=[-vmax, 0, vmax])
+    fig.colorbar(im, ax=ax, shrink=.6, label='Correlation', ticks=[vmin, 0, vmax])
 
 if __name__=='__main__':
     fig = plt.figure(figsize=(5, 5))
