@@ -97,7 +97,7 @@ def trial_wise_r2(y, y_hat):
     trial_r2 = 1 - np.sum((y - y_hat) ** 2, axis=(0, 2)) / np.sum((y - y.mean(axis=0)[np.newaxis]) ** 2,
                                                                   axis=(0, 2))
     r2 = trial_r2.mean(axis=0)
-    return r2
+    return r2, trial_r2.std(axis=0)
 
 def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample_size=1, plot=False):
     """
@@ -120,11 +120,13 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
     size_of_folds_samples = round((nb_trial-nb_trial % folds)/folds)
 
     all_r2 = []
+    all_r2_std = []
     for sample in range(sample_size):
         permutation = np.random.permutation(nb_trial)
         permuted_data, permuted_movement = flattened_data[:,permutation], flattened_movement[:,permutation]
         n = 0
         r2 = []
+        r2_std = []
         for fold in range(folds):
             train_data, test_data = split(permuted_data, n, size_of_folds_samples)
             train_movement, test_movement = split(permuted_movement, n, size_of_folds_samples)
@@ -141,17 +143,20 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
 
                 plt.show()
 
-            current_r2 = trial_wise_r2(test_movement, test_movement_hat)
+            current_r2, current_r2_std = trial_wise_r2(test_movement, test_movement_hat)
 
             r2 += [current_r2]
+            r2_std += [current_r2_std]
 
             n += size_of_folds_samples
 
         all_r2 += [r2]
+        all_r2_std += [r2_std]
 
     all_r2 = np.array(all_r2)
+    all_r2_std = np.array(all_r2_std)
 
-    return all_r2.mean(), all_r2.std()
+    return all_r2.mean(), all_r2_std.mean()
 
 def condition_average(data, movement, angle):
     """
