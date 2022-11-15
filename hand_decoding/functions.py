@@ -1,5 +1,6 @@
 import numpy as np
 from .helper_functions import *
+import sklearn
 
 """
 Throughout:
@@ -7,7 +8,7 @@ data (ndarray): time x trial x ... x neuron
 movement (ndarray): time x ... x trial x XY 
 """
 
-def decoding(x, y):
+def decoding(x, y, regularization=1):
     """
     Linearly decodes (with bias) y from x (least square)
     in:
@@ -25,7 +26,10 @@ def decoding(x, y):
     x_with_ones_flat = x_with_ones.reshape(-1, x_shape[-1]+1)
     y_flat = y.reshape(-1, y.shape[-1])
 
-    W_b = np.linalg.lstsq(x_with_ones_flat, y_flat, rcond=None)[0].T # dim(Y) x dim(X)+1
+    if regularization==0:
+        W_b = np.linalg.lstsq(x_with_ones_flat, y_flat, rcond=None)[0].T # dim(Y) x dim(X)+1
+    else:
+        W_b = sklearn.linear_model.ridge_regression(x_with_ones_flat, y_flat, alpha=regularization)
 
     W, b = W_b[:,:x_shape[-1]], W_b[:,-1]
 
@@ -41,7 +45,7 @@ def angles_from_vectors(x):
 
     return np.arctan2(x[...,1], x[...,0])+np.pi
 
-def velocity_decoding(data, movement):
+def velocity_decoding(data, movement, regularization=1):
     """
     Linearly decodes (with bias) the velocity from the data and integrates it from true starting point
     in:
@@ -54,7 +58,7 @@ def velocity_decoding(data, movement):
     velocity = movement[1:]-movement[:-1]
     data_cut = data[:-1]
 
-    W, b = decoding(data_cut, velocity)
+    W, b = decoding(data_cut, velocity, regularization)
 
     def decoder(x, initial_pos):
 
@@ -69,7 +73,7 @@ def velocity_decoding(data, movement):
     return decoder(data, movement[0]), decoder
 
 
-def position_decoding(data, movement):
+def position_decoding(data, movement, regularization=1):
     """
     Linearly decodes (with bias) the position from the data
     in:
@@ -79,7 +83,7 @@ def position_decoding(data, movement):
         decoding_function (python function): a function which takes data as input and returns movement
     """
 
-    W, b = decoding(data, movement)
+    W, b = decoding(data, movement, regularization)
 
     def decoder(x, initial_pos): return x @ W.T + b
 
@@ -92,12 +96,14 @@ def trial_wise_r2(y, y_hat):
         y (ndarray): time x trial x neuron
         y_hat (ndarray): time x trial x neuron
     out:
-        r2 (float): R^2
+        r2 (float): mean R^2
+        r2_std (float): std R^2
     """
     trial_r2 = 1 - np.sum((y - y_hat) ** 2, axis=(0, 2)) / np.sum((y - y.mean(axis=0)[np.newaxis]) ** 2,
                                                                   axis=(0, 2))
     r2 = trial_r2.mean(axis=0)
-    return r2, trial_r2.std(axis=0)
+    r2_std = trial_r2.std(axis=0)
+    return r2, r2_std
 
 def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample_size=1, plot=False):
     """
@@ -109,7 +115,7 @@ def k_fold_cross_validated_r2(data, movement, decoding_function, folds=5, sample
         sample_size (int): how many times the whole procedure is done
     out:
         r2_mean (float): mean R^2 over trials, folds, permutations (see trial_wise_r2)
-        r2_std (float): same but std
+        r2_std (float): std R^2 over trials
     """
 
     flattened_data = flatten_mid_dims(data)

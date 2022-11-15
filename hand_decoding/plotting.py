@@ -33,7 +33,7 @@ def plot_hand_movement(ax, movement, angle, linestyle='-', alpha=1.0, linewidth=
 
     ax.set_aspect('equal')
 
-def plot_multiple_hand_movements(axs, movements, angles, linestyle='-', alpha=1.0, linewidth=1.0):
+def plot_multiple_hand_movements(axs, movements, angles, linestyle='-', alpha=1.0, linewidth=1.0, set_ax_lim=True):
     """
     Plots hand movement with trajectories colored as angle, puts in separate axes
     in:
@@ -48,9 +48,11 @@ def plot_multiple_hand_movements(axs, movements, angles, linestyle='-', alpha=1.
 
     for i in range(len(movements)):
         plot_hand_movement(axs[i], movements[i], angles[i],
-                linestyle=linestyle, alpha=alpha, linewidth=linewidth)
-        axs[i].set_xlim(-max_movement, max_movement)
-        axs[i].set_ylim(-max_movement, max_movement)
+                linestyle=linestyle, alpha=alpha, linewidth=linewidth, set_ax_lim=False)
+
+        if set_ax_lim:
+            axs[i].set_xlim(-max_movement, max_movement)
+            axs[i].set_ylim(-max_movement, max_movement)
 
 def plot_lda_pos(ax, decoded_initial_state, condition, angle, label=False):
     """
