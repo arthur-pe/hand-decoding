@@ -6,7 +6,7 @@ setup(
     author='arthur',
     #author_email='',
     packages=['hand_decoding'],
-    install_requires=['numpy', 'matplotlib', 'sklearn'],
+    install_requires=['numpy', 'matplotlib', 'scikit-learn'],
     version='0.1',
     #license='MIT',
     description='Package for decoding hand movement from neural data.',
