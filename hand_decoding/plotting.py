@@ -19,7 +19,7 @@ def plot_hand_movement(ax, movement, angle, linestyle='-', alpha=1.0, linewidth=
         angle (ndarray): len(angle) = trial, angle must be between 0 and 2pi
     """
 
-    cmap = matplotlib.cm.get_cmap('gist_rainbow')
+    cmap = matplotlib.colormaps['gist_rainbow']
 
     for i in range(movement.shape[1]):
         ax.plot(movement[:, i, 0], movement[:, i, 1], color=cmap(angle[i]/(2*np.pi)),
@@ -63,7 +63,7 @@ def plot_lda_pos(ax, decoded_initial_state, condition, angle, label=False):
         angle (ndarray): trial. The angle of the decoded target.
     """
 
-    cmap = matplotlib.cm.get_cmap('gist_rainbow')
+    cmap = matplotlib.colormaps['gist_rainbow']
 
     z = -decoded_initial_state.std()
 
@@ -110,7 +110,7 @@ def plot_bar_per_condition(ax, value, error=None, label_model=None, label_condit
 
     number_models, number_conditions = value.shape
 
-    cmap = matplotlib.cm.get_cmap('pink')
+    cmap = matplotlib.colormaps['pink']
 
     for i in range(0,number_models):
         x = np.arange(i*(number_conditions+1), (i+1)*(number_conditions+1),1)
